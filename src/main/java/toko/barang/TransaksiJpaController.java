@@ -21,9 +21,9 @@ import toko.barang.exceptions.PreexistingEntityException;
  *
  * @author DELL
  */
-public class BarangJpaController implements Serializable {
+public class TransaksiJpaController implements Serializable {
 
-    public BarangJpaController(EntityManagerFactory emf) {
+    public TransaksiJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("toko_barang_jar_0.0.1-SNAPSHOTPU");
@@ -32,16 +32,21 @@ public class BarangJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Barang barang) throws PreexistingEntityException, Exception {
+    public TransaksiJpaController() {
+    }
+    
+    
+
+    public void create(Transaksi transaksi) throws PreexistingEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            em.persist(barang);
+            em.persist(transaksi);
             em.getTransaction().commit();
         } catch (Exception ex) {
-            if (findBarang(barang.getKodeBarang()) != null) {
-                throw new PreexistingEntityException("Barang " + barang + " already exists.", ex);
+            if (findTransaksi(transaksi.getIdTransaksi()) != null) {
+                throw new PreexistingEntityException("Transaksi " + transaksi + " already exists.", ex);
             }
             throw ex;
         } finally {
@@ -51,19 +56,19 @@ public class BarangJpaController implements Serializable {
         }
     }
 
-    public void edit(Barang barang) throws NonexistentEntityException, Exception {
+    public void edit(Transaksi transaksi) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            barang = em.merge(barang);
+            transaksi = em.merge(transaksi);
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                Integer id = barang.getKodeBarang();
-                if (findBarang(id) == null) {
-                    throw new NonexistentEntityException("The barang with id " + id + " no longer exists.");
+                Integer id = transaksi.getIdTransaksi();
+                if (findTransaksi(id) == null) {
+                    throw new NonexistentEntityException("The transaksi with id " + id + " no longer exists.");
                 }
             }
             throw ex;
@@ -79,14 +84,14 @@ public class BarangJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Barang barang;
+            Transaksi transaksi;
             try {
-                barang = em.getReference(Barang.class, id);
-                barang.getKodeBarang();
+                transaksi = em.getReference(Transaksi.class, id);
+                transaksi.getIdTransaksi();
             } catch (EntityNotFoundException enfe) {
-                throw new NonexistentEntityException("The barang with id " + id + " no longer exists.", enfe);
+                throw new NonexistentEntityException("The transaksi with id " + id + " no longer exists.", enfe);
             }
-            em.remove(barang);
+            em.remove(transaksi);
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -95,19 +100,19 @@ public class BarangJpaController implements Serializable {
         }
     }
 
-    public List<Barang> findBarangEntities() {
-        return findBarangEntities(true, -1, -1);
+    public List<Transaksi> findTransaksiEntities() {
+        return findTransaksiEntities(true, -1, -1);
     }
 
-    public List<Barang> findBarangEntities(int maxResults, int firstResult) {
-        return findBarangEntities(false, maxResults, firstResult);
+    public List<Transaksi> findTransaksiEntities(int maxResults, int firstResult) {
+        return findTransaksiEntities(false, maxResults, firstResult);
     }
 
-    private List<Barang> findBarangEntities(boolean all, int maxResults, int firstResult) {
+    private List<Transaksi> findTransaksiEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
             CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
-            cq.select(cq.from(Barang.class));
+            cq.select(cq.from(Transaksi.class));
             Query q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);
@@ -119,20 +124,20 @@ public class BarangJpaController implements Serializable {
         }
     }
 
-    public Barang findBarang(Integer id) {
+    public Transaksi findTransaksi(Integer id) {
         EntityManager em = getEntityManager();
         try {
-            return em.find(Barang.class, id);
+            return em.find(Transaksi.class, id);
         } finally {
             em.close();
         }
     }
 
-    public int getBarangCount() {
+    public int getTransaksiCount() {
         EntityManager em = getEntityManager();
         try {
             CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
-            Root<Barang> rt = cq.from(Barang.class);
+            Root<Transaksi> rt = cq.from(Transaksi.class);
             cq.select(em.getCriteriaBuilder().count(rt));
             Query q = em.createQuery(cq);
             return ((Long) q.getSingleResult()).intValue();
